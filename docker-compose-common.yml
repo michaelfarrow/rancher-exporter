@@ -1,0 +1,5 @@
+rancher-exporter:
+  image: node:5.2.0
+  working_dir: /usr/src/app
+  entrypoint: node
+  command: index.js

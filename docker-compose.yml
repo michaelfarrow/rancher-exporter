@@ -1,0 +1,12 @@
+rancher-exporter:
+  extends:
+    file: docker-compose-common.yml
+    service: rancher-exporter
+  environment:
+    NODE_RUN_ENV: local
+    ROOT_DOMAIN: 
+    DO_ACCESS_TOKEN: 
+  volumes:
+  - ./src:/usr/src/app
+  entrypoint: ./node_modules/nodemon/bin/nodemon.js
+  command: --watch /usr/src/app --legacy-watch index.js

@@ -1,0 +1,8 @@
+npm:
+  extends:
+    file: docker-compose-common.yml
+    service: rancher-exporter
+  volumes:
+  - ./src:/usr/src/app
+  entrypoint: npm
+  command: --help

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source tools/_functions
+
+heading "Starting"
+
+if [[ $(docker-compose ps | grep _node) ]]; then
+
+	docker-compose up --no-recreate -d node
+
+else
+
+	docker-compose up -d
+
+fi

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source tools/_functions
+
+if [[ $(docker-compose ps | grep Up) ]]; then
+
+	heading "Stopping"
+	docker-compose stop node
+
+fi

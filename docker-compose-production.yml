@@ -1,0 +1,9 @@
+rancher-exporter:
+  image: weyforth/rancher-exporter:latest
+  environment:
+    NODE_RUN_ENV: production
+  labels:
+    io.rancher.container.create_agent: 'true'
+  ports:
+  - '9110:9110'
+  restart: always

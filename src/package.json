@@ -1,0 +1,16 @@
+{
+  "name": "rancher-external-dns",
+  "private": true,
+  "version": "1.0.0",
+  "description": "External DNS Service for Rancher",
+  "author": "Mike Farrow <contact@mikefarrow.co.uk>",
+  "dependencies": {
+    "nodemon": "1.8.1",
+    "express": "4.13.3",
+    "request": "2.67.0",
+    "promise": "7.0.4",
+    "underscore": "1.8.3",
+    "underscore.string": "3.2.2",
+    "prom-client": "3.0.1"
+  }
+}

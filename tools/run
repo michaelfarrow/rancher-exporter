@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+[ -t 1 ] || params="-T"
+
+if [[ "$COMPOSE_FILE" == "" ]];
+	then
+	COMPOSE_FILE="docker-compose-tools.yml"
+fi
+
+COMPOSE_FILE="$COMPOSE_FILE" docker-compose run $params --rm "$@"

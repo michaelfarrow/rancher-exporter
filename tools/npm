@@ -1,0 +1,4 @@
+#!/bin/bash
+
+set -e
+COMPOSE_FILE=docker-compose-tools.yml docker-compose run npm --no-bin-links --silent "$@"
