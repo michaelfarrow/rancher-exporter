@@ -32,6 +32,8 @@ var parseData = function(res) {
 	var services = res[2];
 	var containers = res[3];
 
+
+
 	_.each(stacks, function(stack){
 		stack.services = _.filter(services, function(service){
 			return _.contains(stack.services, service.name); 
@@ -76,28 +78,51 @@ var run = function() {
 	])
 		.then(parseData)
 		.then(function(stacks){
-			console.log('updating');
 			updating = true;
 			Prometheus.register.clear();
 
 			var guage_stack_services = new Prometheus.gauge(
 				'rancher_stack_services',
-				'put description here',
+				'Number of services running',
 				['name']
 			);
 
-			var total = 0;
-			for(var i = 0; i < 999999999; i++){
-				total += i;
-			}
+			var guage_service_containers = new Prometheus.gauge(
+				'rancher_service_containers',
+				'Number of containers running (scale)',
+				['name', 'stack']
+			);
 
-			setTimeout(function(){
-			_.each(stacks, function(stack){
-				guage_stack_services.set({name: stack.name}, stack.services.length);
-			});
+			var guage_container_health = new Prometheus.gauge(
+				'rancher_container_health',
+				'Health of container, 0 = Unhealthy, 1 = No healthcheck or healthy',
+				['host_name', 'host_ip', 'host_uuid', 'name', 'service', 'stack']
+			);
+
+			try{
+				_.each(stacks, function(stack){
+					guage_stack_services.set({name:stack.name}, stack.services.length);
+
+					_.each(stack.services, function(service){
+						guage_service_containers.set({name:service.name ,stack:stack.name}, service.containers.length);
+
+						_.each(service.containers, function(container){
+							guage_container_health.set({
+								host_uuid: _.isNull(container.host) ? '' : container.host.uuid,
+								host_ip: _.isNull(container.host) ? '' : container.host.agent_ip,
+								host_name: _.isNull(container.host) ? '' : container.host.name,
+								name: container.name,
+								service: service.name,
+								stack: stack.name
+							}, _.isNull(container.health_state) || container.health_state == 'healthy' ? 1 : 0);
+						});
+					});
+				});
+			}catch(error){
+				updating = false;
+				throw(error);
+			}
 			updating = false;
-			console.log('updated');
-		}, 3000);
 		})
 		.catch(function(error){
 			console.log(error);
@@ -112,10 +137,22 @@ hc_server.listen(healthCheckPort, function(){
     console.log("Healthcheck handler is listening on: %s", healthCheckPort);
 });
 
+prom_server.get('/', function(req, res){
+	res.end(`
+		<html>
+		<head><title>Rancher Exporter</title></head>
+		<body>
+		<h1>Rancher Exporter</h1>
+		<p><a href="/metrics">Metrics</a></p>
+		</body>
+		</html>
+	`);
+});
+
 prom_server.get('/metrics', function(req, res) {
 	function wait(done){
-		console.log('waiting', updating);
 		if(updating){
+			console.log('waiting');
 			setTimeout(function(){
 				wait(done);
 			}, 100);
