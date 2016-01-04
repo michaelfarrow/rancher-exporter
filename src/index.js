@@ -84,30 +84,38 @@ var run = function() {
 			var guage_stack_services = new Prometheus.gauge(
 				'rancher_stack_services',
 				'Number of services running',
-				['name']
+				['environment', 'name']
 			);
 
 			var guage_service_containers = new Prometheus.gauge(
 				'rancher_service_containers',
 				'Number of containers running (scale)',
-				['name', 'stack']
+				['environment', 'name', 'stack']
 			);
 
 			var guage_container_health = new Prometheus.gauge(
 				'rancher_container_health',
 				'Health of container, 0 = Unhealthy, 1 = No healthcheck or healthy',
-				['host_name', 'host_ip', 'host_uuid', 'name', 'service', 'stack']
+				['environment', 'host_name', 'host_ip', 'host_uuid', 'name', 'service', 'stack']
 			);
 
 			try{
 				_.each(stacks, function(stack){
-					guage_stack_services.set({name:stack.name}, stack.services.length);
+					guage_stack_services.set({
+						environment: stack.environment_name,
+						name: stack.name
+					},stack.services.length);
 
 					_.each(stack.services, function(service){
-						guage_service_containers.set({name:service.name ,stack:stack.name}, service.containers.length);
+						guage_service_containers.set({
+							environment: stack.environment_name,
+							name: service.name,
+							stack: stack.name
+						}, service.containers.length);
 
 						_.each(service.containers, function(container){
 							guage_container_health.set({
+								environment: stack.environment_name,
 								host_uuid: _.isNull(container.host) ? '' : container.host.uuid,
 								host_ip: _.isNull(container.host) ? '' : container.host.agent_ip,
 								host_name: _.isNull(container.host) ? '' : container.host.name,
