@@ -101,21 +101,23 @@ var run = function() {
 
 			try{
 				_.each(stacks, function(stack){
+					var env = stack.environment_name.toLowerCase();
+
 					guage_stack_services.set({
-						environment: stack.environment_name,
+						environment: env,
 						name: stack.name
 					},stack.services.length);
 
 					_.each(stack.services, function(service){
 						guage_service_containers.set({
-							environment: stack.environment_name,
+							environment: env,
 							name: service.name,
 							stack: stack.name
 						}, service.containers.length);
 
 						_.each(service.containers, function(container){
 							guage_container_health.set({
-								environment: stack.environment_name,
+								environment: env,
 								host_uuid: _.isNull(container.host) ? '' : container.host.uuid,
 								host_ip: _.isNull(container.host) ? '' : container.host.agent_ip,
 								host_name: _.isNull(container.host) ? '' : container.host.name,
